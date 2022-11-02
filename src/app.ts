@@ -1,9 +1,21 @@
 import "dotenv/config";
 import express, { response }  from "express";
+import { Server } from "socket.io";
 import { router } from "./routes/router";
+import http from "http";
+import cors from "cors";
 
 const app = express();
-const port = process.env.PORT || 4003 ;
+app.use(cors())
+
+const serverHttp  = http.createServer(app);
+const io = new Server(serverHttp, {
+    cors: {
+        origin: "*",
+    }
+});
+
+
 
 app.get("/github", (request, response) => {
     response.redirect(`https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}`)
@@ -18,7 +30,6 @@ app.get("/signin/callback", (request, response) => {
     return response.json(code);
 });
 
-app.listen(port, () => {
-    console.log(`Server is running in port: ${port}`);
-});
 
+
+export { serverHttp, io }
